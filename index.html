@@ -792,13 +792,41 @@
         transform: scale(1.02) !important;
       }
 
+      /* === ЛОКАЦИИ НА МОБИЛЬНОМ === */
       .location-slide { 
         grid-template-columns: 1fr; 
-        padding: 100px 7vw 140px; 
-        min-height: auto; 
+        padding: 80px 7vw 130px;
+        min-height: auto;
+        gap: 30px;
       }
-      .location-copy { min-height: auto; }
-      .location-image { margin-top: 40px; aspect-ratio: 16/9; }
+      .location-copy { 
+        min-height: auto;
+        order: 1; /* текст идёт первым */
+      }
+      .location-copy h2 {
+        font-size: clamp(38px, 10vw, 56px);
+      }
+      .location-copy p {
+        font-size: 15px;
+        margin-top: 20px;
+      }
+      /* Картинка — вытянутая вертикальная, крупная */
+      .location-image { 
+        order: 2; /* картинка идёт после текста */
+        margin-top: 0;
+        aspect-ratio: 3 / 4; /* вытянутая вертикальная */
+        width: 100%;
+      }
+      /* Скрываем подписи с картинок в мобильной версии */
+      .location-label {
+        display: none;
+      }
+      /* Убираем затемняющий градиент снизу — он был нужен 
+         только под подписью, а теперь подписи нет */
+      .location-image::after {
+        background: linear-gradient(to top, rgba(43,20,32,0.4), transparent 30%);
+      }
+
       .location-arrow { width: 44px; height: 44px; font-size: 16px; }
       .location-arrow--prev { left: 15px; }
       .location-arrow--next { right: 15px; }
@@ -1226,23 +1254,20 @@
     const counters = document.querySelectorAll('.stat-number[data-target]');
     if (!counters.length) return;
 
-    // Форматирование числа с пробелами: 12480 → "12 480"
     function formatNumber(num) {
       return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     }
 
-    // Плавная анимация одного счётчика
     function animateCounter(el) {
       const target = parseInt(el.dataset.target, 10);
       if (isNaN(target)) return;
 
-      const duration = 1800; // мс
+      const duration = 1800;
       const startTime = performance.now();
 
       function tick(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        // easeOutCubic — быстрый старт, плавное замедление
         const eased = 1 - Math.pow(1 - progress, 3);
         const value = Math.round(eased * target);
         el.textContent = formatNumber(value);
@@ -1257,14 +1282,12 @@
       requestAnimationFrame(tick);
     }
 
-    // Запускаем анимацию один раз, когда блок попадает в зону видимости
     let started = false;
 
     function startCounters() {
       if (started) return;
       started = true;
       counters.forEach((el, i) => {
-        // Небольшая задержка между счётчиками — «лесенкой»
         setTimeout(() => animateCounter(el), i * 200);
       });
     }
@@ -1282,7 +1305,6 @@
 
       observer.observe(statsSection);
     } else {
-      // Фолбэк для старых браузеров — просто запускаем сразу
       startCounters();
     }
   });
